@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Markdown from 'markdown-to-jsx';
 import axios from 'axios';
 import './App.css';
 
@@ -48,10 +49,24 @@ function App() {
             .catch(usererr => console.log(usererr));
             }, []);
 
+    const [readmeContent, setReadmeContent] = useState<string>('');
+
+
+    useEffect(() => {
+        axios.get('https://api.github.com/repos/Nyxnix/Nyxnix/contents/README.md')
+            .then(response => {
+                const readme = response.data;
+                const decodedContent = atob(readme.content); // Decode base64 content
+                setReadmeContent(decodedContent);
+            })
+            .catch(error => console.error('Error fetching README:', error));
+    }, []);
+
     return (
             <div id="app-container" className="App">
             <div id="l-container">
             <h1>GitHub Repos</h1>
+            <h3>(Sorted by recently updated)</h3>
             <div id="repos">
             <table className="table">
             <thead>
@@ -88,6 +103,9 @@ function App() {
         <a className="user-url" href={userdata.html_url} target="_blank" rel="noopener noreferrer">
         {userdata.html_url}
     </a>
+        <div className="readme-content">
+        <Markdown>{readmeContent}</Markdown>
+        </div>
         </div>
         </div>
         );
